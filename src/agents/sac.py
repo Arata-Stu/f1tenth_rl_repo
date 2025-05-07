@@ -120,13 +120,8 @@ class SAC:
         return action.cpu().numpy()[0]
 
     def update(self, replay_buffer, batch_size=256):
-        s, a, r, s2, d = replay_buffer.sample(batch_size)
-        state = torch.FloatTensor(s).to(self.device)
-        action = torch.FloatTensor(a).to(self.device)
-        reward = torch.FloatTensor(r).unsqueeze(1).to(self.device)
-        next_state = torch.FloatTensor(s2).to(self.device)
-        done = torch.FloatTensor(d).unsqueeze(1).to(self.device)
-
+        state, action, reward, next_state, done = replay_buffer.sample(batch_size)
+        
         c_info = self._update_critic(state, action, reward, next_state, done)
         a_info = self._update_actor(state)
         alpha_info = self._update_alpha(state)

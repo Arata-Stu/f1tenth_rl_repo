@@ -40,6 +40,7 @@ def main(cfg: DictConfig):
         max_reacquire=cfg.planner.max_reacquire,
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
     agent = get_agent(agent_cfg=cfg.agent, device=device)
     buffer = get_buffer(buffer_cfg=cfg.buffer, device=device)
     reward_manager = make_raward(reward_cfg=cfg.reward, map_manager=map_manager)
@@ -114,9 +115,12 @@ def main(cfg: DictConfig):
         if total_reward > best_reward:
             best_reward = total_reward
             save_path = os.path.join(model_dir, "best_model.pth")
-            torch.save(agent.state_dict(), save_path)
+            agent.save(save_path)
             print(f"  ▶ New best model saved (reward: {best_reward:.2f}) → {save_path}")
 
     writer.close()
     env.close()
     print("Training completed.")
+
+if __name__ == "__main__":
+    main()

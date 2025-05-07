@@ -14,7 +14,7 @@ class TALReward(RewardBase):
 
         self.planner = PurePursuitPlanner(wheelbase=planner_cfg.wheelbase,
                                           map_manager=map_manager,
-                                          ookahead=planner_cfg.lookahead, 
+                                          lookahead=planner_cfg.lookahead, 
                                           gain=planner_cfg.gain,
                                           max_reacquire=planner_cfg.max_reacquire) 
 
