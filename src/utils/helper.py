@@ -6,6 +6,7 @@ def convert_action(action, steer_range: float=0.4, speed_range: float=10.0):
     
     steer = action[0] * steer_range
     speed = (action[1] + 1) / 2 * speed_range
+    speed = min(speed, speed_range)
     action = [steer, speed]
     return action
 
