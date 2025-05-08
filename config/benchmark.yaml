@@ -11,8 +11,6 @@ ckpt: ???
 scan_n: 2
 dowansample_beam: 60
 
-## 学習設定
-num_episodes: 10000
 num_steps: 10000
 
 ## 可視化設定
@@ -22,4 +20,4 @@ render_mode: "human" ## human or human_fast
 
 hydra:
   run:
-    dir: ./outputs/eval/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./outputs/benchmark/${now:%Y-%m-%d}/${now:%H-%M-%S}
