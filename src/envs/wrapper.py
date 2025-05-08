@@ -2,6 +2,7 @@ import gymnasium as gym
 import numpy as np
 import math
 from pyglet.gl import GL_POINTS
+from pyglet.text import Label
 
 
 from f1tenth_gym.maps.map_manager import MapManager
@@ -24,6 +25,13 @@ class F110Wrapper(gym.Wrapper):
 
         self._waypoint_vlists = []  # ← 追加：ウェイポイント用のVertexListを保持
         self.speed = 0.0
+        self.speed_label = Label(speed_label_text,
+                                font_name='Times New Roman',
+                                font_size=14,
+                                x=left, y=top - 30,
+                                anchor_x='left', anchor_y='top',
+                                color=(255, 255, 255, 255),
+                                batch=e.batch)
 
         self.env.add_render_callback(self.render_callback)
         # Waypoint描画機能をレンダリングコールバックとして追加
