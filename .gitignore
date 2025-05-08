@@ -3,6 +3,7 @@ outputs/
 env
 ckpts/
 logs/
+benchmarks/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
