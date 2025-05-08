@@ -50,8 +50,8 @@ def main(cfg: DictConfig):
         target_size=cfg.dowansample_beam
     )
 
-    log_dir = os.path.join(cfg.log_dir, cfg.run_id, cfg.agent.name)
-    model_dir = os.path.join(cfg.ckpt_dir, cfg.run_id, cfg.agent.name)
+    log_dir = os.path.join(cfg.log_dir, cfg.run_id, cfg.agent.name, cfg.reward.name)
+    model_dir = os.path.join(cfg.ckpt_dir, cfg.run_id, cfg.agent.name, cfg.reward.name)
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(model_dir, exist_ok=True)
 
@@ -118,7 +118,7 @@ def main(cfg: DictConfig):
         # --- 最高報酬更新＆モデル保存 ---
         if total_reward > best_reward:
             best_reward = total_reward
-            save_path = os.path.join(model_dir, "best_model.pth")
+            save_path = os.path.join(model_dir, f"best_model_reward_{best_reward:.2f}.pth")
             agent.save(save_path)
             print(f"  ▶ New best model saved (reward: {best_reward:.2f}) → {save_path}")
 
