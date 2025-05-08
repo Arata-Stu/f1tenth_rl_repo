@@ -65,11 +65,19 @@ def main(cfg: DictConfig):
         map_dir = os.path.join(benchmark_dir, map_name)
         os.makedirs(map_dir, exist_ok=True)
         csv_file = os.path.join(map_dir, f"{map_name}_trajectory.csv")
+        lap_file = os.path.join(map_dir, f"{map_name}_lap_times.csv")
         
         # CSVファイルの初期化
         with open(csv_file, mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["x", "y", "velocity"])  # ヘッダ行の追加
+            writer.writerow(["x", "y", "velocity"])
+
+        # ラップタイムのCSV初期化
+        if not os.path.exists(lap_file):
+            with open(lap_file, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Lap Number", "Lap Time"])
+
 
         env.update_map(map_name, map_ext=cfg.envs.map.ext)
         scan_buffer.reset()
@@ -112,6 +120,16 @@ def main(cfg: DictConfig):
                 writer.writerow([current_pos[0], current_pos[1], velocity])
 
             if done:
+                if truncated:
+                    with open(lap_file, mode='a', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([0, 0.0])
+                elif terminated:
+                    lap_time = obs['lap_times']
+                    with open(lap_file, mode='a', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([1, lap_time])
+                
                 break
 
             if cfg.render:
