@@ -28,4 +28,4 @@ render_mode: "human" ## human or human_fast
 
 hydra:
   run:
-    dir: ./outputs/train_rl/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./outputs/train/${now:%Y-%m-%d}/${now:%H-%M-%S}
