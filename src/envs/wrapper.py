@@ -23,6 +23,7 @@ class F110Wrapper(gym.Wrapper):
         self.map_manager = map_manager
 
         self._waypoint_vlists = []  # ← 追加：ウェイポイント用のVertexListを保持
+        self.speed = 0.0
 
         self.env.add_render_callback(self.render_callback)
         # Waypoint描画機能をレンダリングコールバックとして追加
@@ -51,6 +52,8 @@ class F110Wrapper(gym.Wrapper):
         vel_y = obs['linear_vels_y'][0]
         vel = np.sqrt(vel_x**2 + vel_y**2)
         info['velocity'] = vel
+
+        self.speed = vel
 
         # spin
         if abs(obs['poses_theta'][0]) > 100.0:
@@ -155,6 +158,14 @@ class F110Wrapper(gym.Wrapper):
         e.right = right + l
         e.top = top + l
         e.bottom = bottom - l
+
+        car_speed = self.speed
+        speed_label_text = f'Speed: {car_speed:.2f} m/s'  # 速度を文字列としてフォーマット
+
+        # Display speed label
+        self.speed_label.text = speed_label_text
+        self.speed_label.x = left
+        self.speed_label.y = top - 30  # 少しスコアラベルの上に表示
 
     def render_waypoints(self, renderer):
         """
