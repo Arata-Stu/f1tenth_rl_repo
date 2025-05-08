@@ -78,36 +78,62 @@ def visualize_curve_class_map(map_manager, figsize=(10,10), save_path=None):
         fig.savefig(save_path, bbox_inches='tight', pad_inches=0)
     plt.show()
 
+def visualize_trajectory(map_name, base_dir='./f1tenth_gym/maps', figsize=(10, 10), save_path=None):
+    """
+    指定されたマップの走行軌跡と速度をPNGマップ上に可視化
+    
+    Args:
+        map_name (str): マップ名（例: 'Austin'）
+        base_dir (str): マップファイルが存在するベースディレクトリのパス
+        figsize (tuple): プロットのサイズ
+        save_path (str): 保存先のパス（指定しない場合は表示のみ）
+    """
+    # パスの構築
+    yaml_path = os.path.join(base_dir, map_name, f"{map_name}_map.yaml")
+    csv_path = os.path.join(base_dir, map_name, f"{map_name}_trajectory.csv")
+    
+    # --- YAML の読み込み ---
+    with open(yaml_path, 'r') as f:
+        cfg = yaml.safe_load(f)
 
-def plot_curvature_histogram(map_manager, bins=100, log=False):
-    if not hasattr(map_manager, 'waypoints'):
-        raise RuntimeError("waypointsがロードされていません。")
+    image_file = cfg['image']
+    resolution = cfg['resolution']
+    origin_x, origin_y = cfg['origin'][0], cfg['origin'][1]
+    
+    # 画像の読み込み
+    img_path = os.path.join(base_dir, map_name, image_file)
+    img = plt.imread(img_path)
+    height, width = img.shape[:2]
 
-    # 曲率取得（再計算してもよいが、ここでは再利用前提）
-    wpts = map_manager.waypoints[:, :2]
-    N = len(wpts)
+    # --- CSV の読み込み ---
+    x_coords, y_coords, velocities = [], [], []
 
-    curvature = np.zeros(N, dtype=np.float32)
-    for i in range(1, N-1):
-        v1 = wpts[i]   - wpts[i-1]
-        v2 = wpts[i+1] - wpts[i]
-        n1, n2 = np.linalg.norm(v1), np.linalg.norm(v2)
-        if n1 < 1e-6 or n2 < 1e-6:
-            continue
-        cos_t = np.clip(np.dot(v1, v2)/(n1*n2), -1.0, 1.0)
-        theta = np.arccos(cos_t)
-        curvature[i] = theta / n2
+    with open(csv_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            x_coords.append(float(row['x']))
+            y_coords.append(float(row['y']))
+            velocities.append(float(row['velocity']))
 
-    # スムージング
-    curvature_smooth = gaussian_filter1d(curvature, sigma=map_manager.smooth_sigma)
+    x_coords = np.array(x_coords)
+    y_coords = np.array(y_coords)
+    velocities = np.array(velocities)
 
-    # ヒストグラム描画
-    plt.figure(figsize=(10, 5))
-    plt.hist(curvature, bins=bins, alpha=0.5, label='Raw', log=log)
-    plt.hist(curvature_smooth, bins=bins, alpha=0.7, label='Smoothed', log=log)
-    plt.xlabel('Curvature')
-    plt.ylabel('Frequency')
-    plt.title(f'Curvature Histogram: {map_manager.map_name}')
-    plt.legend()
-    plt.grid(True)
+    # ワールド座標 → ピクセル座標変換（Y軸反転補正）
+    px = (x_coords - origin_x) / resolution
+    py = height - (y_coords - origin_y) / resolution
+
+    # --- 描画 ---
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.imshow(img, origin='upper')
+    sc = ax.scatter(px, py, c=velocities, cmap='bwr', s=5)
+
+    # カラーバー
+    cbar = plt.colorbar(sc, ax=ax)
+    cbar.set_label('Speed [m/s]')
+    ax.set_title(f"Trajectory Visualization: {map_name}")
+    ax.axis('off')
+
+    if save_path:
+        fig.savefig(save_path, bbox_inches='tight', pad_inches=0)
     plt.show()
