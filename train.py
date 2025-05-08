@@ -104,6 +104,10 @@ def main(cfg: DictConfig):
                     writer.add_scalar(f"loss/{key}", value, global_step=episode)
 
             obs = next_obs
+
+            if cfg.render:
+                env.render(cfg.render_mode)
+                
             if done:
                 break
 
