@@ -160,16 +160,23 @@ class F110Wrapper(gym.Wrapper):
         e.top = top + l
         e.bottom = bottom - l
 
-        car_speed = self.speed
-        speed_label_text = f'Speed: {car_speed:.2f} m/s'  # 速度を文字列としてフォーマット
+        # 初回のみ Label を生成する
+        if not hasattr(self, 'speed_label'):
+            self.speed_label = Label('Speed: 0.00 m/s',
+                                    font_name='Times New Roman',
+                                    font_size=14,
+                                    x=left, y=top - 30,
+                                    anchor_x='left', anchor_y='top',
+                                    color=(255, 255, 255, 255),
+                                    batch=e.batch)
 
-        self.speed_label = Label(speed_label_text,
-                                font_name='Times New Roman',
-                                font_size=14,
-                                x=left, y=top - 30,
-                                anchor_x='left', anchor_y='top',
-                                color=(255, 255, 255, 255),
-                                batch=e.batch)
+        # テキストの内容だけ更新する
+        self.speed_label.text = f'Speed: {self.speed:.2f} m/s'
+
+        # 座標も更新する（カメラが動く場合）
+        self.speed_label.x = left
+        self.speed_label.y = top - 30
+
 
     def render_waypoints(self, renderer):
         """
