@@ -1,5 +1,6 @@
 import os
 import yaml
+import csv
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 
@@ -78,20 +79,31 @@ def visualize_curve_class_map(map_manager, figsize=(10,10), save_path=None):
         fig.savefig(save_path, bbox_inches='tight', pad_inches=0)
     plt.show()
 
-def visualize_trajectory(map_name, base_dir='./f1tenth_gym/maps', figsize=(10, 10), save_path=None):
+def visualize_trajectory(map_name, base_dir='./data', yaml_dir='./f1tenth_gym/maps', figsize=(10, 10), save_path=None):
     """
     指定されたマップの走行軌跡と速度をPNGマップ上に可視化
     
     Args:
         map_name (str): マップ名（例: 'Austin'）
-        base_dir (str): マップファイルが存在するベースディレクトリのパス
+        base_dir (str): CSVファイルが存在するベースディレクトリのパス
+        yaml_dir (str): YAMLファイルが存在するベースディレクトリのパス
         figsize (tuple): プロットのサイズ
         save_path (str): 保存先のパス（指定しない場合は表示のみ）
     """
-    # パスの構築
-    yaml_path = os.path.join(base_dir, map_name, f"{map_name}_map.yaml")
-    csv_path = os.path.join(base_dir, map_name, f"{map_name}_trajectory.csv")
+    # --- パスの構築 ---
+    yaml_path = os.path.join(yaml_dir, map_name, f"{map_name}.yaml")
+    csv_files = glob.glob(os.path.join(base_dir, map_name, '*.csv'))
+
+    if not os.path.exists(yaml_path):
+        raise FileNotFoundError(f"YAMLファイルが見つかりません: {yaml_path}")
+
+    if len(csv_files) == 0:
+        raise FileNotFoundError(f"CSVファイルが見つかりません: {os.path.join(base_dir, map_name)}")
     
+    # 最初のCSVを使う（複数ある場合）
+    csv_path = csv_files[0]
+    print(f"Using CSV: {csv_path}")
+
     # --- YAML の読み込み ---
     with open(yaml_path, 'r') as f:
         cfg = yaml.safe_load(f)
@@ -101,7 +113,10 @@ def visualize_trajectory(map_name, base_dir='./f1tenth_gym/maps', figsize=(10, 1
     origin_x, origin_y = cfg['origin'][0], cfg['origin'][1]
     
     # 画像の読み込み
-    img_path = os.path.join(base_dir, map_name, image_file)
+    img_path = os.path.join(yaml_dir, map_name, image_file)
+    if not os.path.exists(img_path):
+        raise FileNotFoundError(f"マップ画像が見つかりません: {img_path}")
+    
     img = plt.imread(img_path)
     height, width = img.shape[:2]
 
@@ -136,4 +151,5 @@ def visualize_trajectory(map_name, base_dir='./f1tenth_gym/maps', figsize=(10, 1
 
     if save_path:
         fig.savefig(save_path, bbox_inches='tight', pad_inches=0)
+        
     plt.show()
