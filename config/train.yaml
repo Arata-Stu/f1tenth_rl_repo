@@ -15,6 +15,7 @@ num_episodes: 10000
 num_steps: 10000
 warmup_steps: 10000
 batch_size: 1000
+random_map: False ## True: ランダムマップ False: 固定マップ
 
 ## log 設定
 run_id: ${now:%Y-%m-%d}/${now:%H-%M-%S}

@@ -1,4 +1,5 @@
 import os
+import random
 import numpy as np
 import torch
 import hydra
@@ -62,6 +63,9 @@ def main(cfg: DictConfig):
 
     # --- 学習ループ ---
     for episode in range(cfg.num_episodes):
+        if cfg.random_map:
+            map_name = random.choice(list(MAP_DICT.values()))
+            env.update_map(map_name, map_ext=cfg.envs.map.ext)
         obs, info = env.reset()
         done = False
         total_reward = 0.0
