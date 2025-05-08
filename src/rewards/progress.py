@@ -18,14 +18,14 @@ class ProgressReward(RewardBase):
         
         current_progress = self.map_manager.calc_progress(current_position)
         prev_progress = self.map_manager.calc_progress(prev_position)
-        distance = current_progress - prev_progress
-
+        distance = current_progress - prev_progress ## 例 0.007
+        
         ## 大きな値は無視
         if abs(distance) > 1.0:
             distance = 0.0
 
         ## max 1.0
-        progress_reward = distance * 0.01
+        progress_reward = distance * 50.0
         progress_reward *= self.ratio
         
         return base_reward + progress_reward
