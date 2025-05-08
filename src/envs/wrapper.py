@@ -47,6 +47,10 @@ class F110Wrapper(gym.Wrapper):
         waypoint = self.map_manager.get_future_waypoints(current_pos, num_points=num_points)
         info['waypoint'] = waypoint
         info['current_pos'] = current_pos
+        vel_x = obs['linear_vels_x'][0]
+        vel_y = obs['linear_vels_y'][0]
+        vel = np.sqrt(vel_x**2 + vel_y**2)
+        info['velocity'] = vel
 
         # spin
         if abs(obs['poses_theta'][0]) > 100.0:
