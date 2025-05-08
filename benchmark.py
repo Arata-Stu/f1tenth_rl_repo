@@ -51,9 +51,6 @@ def main(cfg: DictConfig):
         target_size=cfg.dowansample_beam
     )
 
-    # 初期スキャンの登録
-    scan = convert_scan(obs['scans'][0], cfg.envs.max_beam_range)
-    scan_buffer.add_scan(scan)
 
     # --- ベンチマーク結果の保存ディレクトリ ---
     benchmark_dir = cfg.benchmark_dir
@@ -79,6 +76,10 @@ def main(cfg: DictConfig):
         # --- 評価ループ ---
         obs, info = env.reset()
         done = False
+
+        # 初期スキャンの登録
+        scan = convert_scan(obs['scans'][0], cfg.envs.max_beam_range)
+        scan_buffer.add_scan(scan)
         total_reward = 0.0
 
         for step in range(cfg.num_steps):
