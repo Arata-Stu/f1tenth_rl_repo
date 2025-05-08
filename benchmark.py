@@ -1,4 +1,5 @@
 import os
+import csv
 import numpy as np
 import torch
 import hydra
@@ -54,9 +55,25 @@ def main(cfg: DictConfig):
     scan = convert_scan(obs['scans'][0], cfg.envs.max_beam_range)
     scan_buffer.add_scan(scan)
 
+    # --- ベンチマーク結果の保存ディレクトリ ---
+    benchmark_dir = cfg.benchmark_dir
+    if not os.path.exists(benchmark_dir):
+        os.makedirs(benchmark_dir)
+
     for ep in range(len(MAP_DICT)):
         map_name = MAP_DICT[ep]
         print(f"Evaluating on map: {map_name}")
+        
+        # マップごとのディレクトリとCSVファイルの準備
+        map_dir = os.path.join(benchmark_dir, map_name)
+        os.makedirs(map_dir, exist_ok=True)
+        csv_file = os.path.join(map_dir, f"{map_name}_trajectory.csv")
+        
+        # CSVファイルの初期化
+        with open(csv_file, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["x", "y", "velocity"])  # ヘッダ行の追加
+
         env.update_map(map_name, map_ext=cfg.envs.map.ext)
         scan_buffer.reset()
         # --- 評価ループ ---
@@ -85,6 +102,13 @@ def main(cfg: DictConfig):
             scan_buffer.add_scan(next_scan)
 
             total_reward += reward
+
+            # --- CSVへの書き込み ---
+            current_pos = info['current_pos']   # [x, y]
+            velocity = info['velocity']         # float
+            with open(csv_file, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([current_pos[0], current_pos[1], velocity])
 
             if done:
                 break

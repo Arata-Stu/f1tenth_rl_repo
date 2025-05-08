@@ -17,6 +17,7 @@ num_steps: 10000
 render: True
 render_mode: "human" ## human or human_fast
 
+benchmark_dir: ./benchmark/${now:%Y-%m-%d}/${now:%H-%M-%S}/
 
 hydra:
   run:

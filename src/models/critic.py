@@ -47,9 +47,9 @@ class DoubleCritic(nn.Module):
 
 
 class Double1dConvCritic(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim, tau, device):
+    def __init__(self, state_dim, action_dim, hidden_dim, tau):
         super().__init__()
-        self.device = device
+        
         self.lidar_backbone = TinyLidarBackbone(input_dim=state_dim)
         def make_net():
             return nn.Sequential(
@@ -59,8 +59,8 @@ class Double1dConvCritic(nn.Module):
                 nn.ReLU(),
                 nn.Linear(hidden_dim, 1)
             )
-        self.critic1 = make_net().to(device)
-        self.critic2 = make_net().to(device)
+        self.critic1 = make_net()
+        self.critic2 = make_net()
         self.target1 = copy.deepcopy(self.critic1)
         self.target2 = copy.deepcopy(self.critic2)
         self.tau = tau
