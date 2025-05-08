@@ -1,5 +1,6 @@
 import os
 import yaml
+import glob
 import csv
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
@@ -91,7 +92,7 @@ def visualize_trajectory(map_name, base_dir='./data', yaml_dir='./f1tenth_gym/ma
         save_path (str): 保存先のパス（指定しない場合は表示のみ）
     """
     # --- パスの構築 ---
-    yaml_path = os.path.join(yaml_dir, map_name, f"{map_name}.yaml")
+    yaml_path = os.path.join(yaml_dir, map_name, f"{map_name}_map.yaml")
     csv_files = glob.glob(os.path.join(base_dir, map_name, '*.csv'))
 
     if not os.path.exists(yaml_path):
