@@ -104,6 +104,7 @@ def main(cfg: DictConfig):
 
             # 環境のステップ
             next_obs, reward, terminated, truncated, info = env.step(np.array(actions))
+            terminated = obs['lap_counts'][0] == 1
             done = terminated or truncated
 
             # スキャンの更新
