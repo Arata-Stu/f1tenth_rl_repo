@@ -7,6 +7,8 @@ gymnasium
 matplotlib
 scipy
 
+pandas
+scikit-image
 tqdm
 h5py
 hdf5plugin
