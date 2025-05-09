@@ -68,7 +68,7 @@ def visualize_curve_class_map(map_manager, figsize=(10,10), save_path=None):
     # 描画
     fig, ax = plt.subplots(figsize=figsize)
     ax.imshow(img, origin='upper')
-    sc = ax.scatter(px, py, c=classes, cmap='tab10', s=10)
+    sc = ax.scatter(px, py, c=classes, cmap='RdYlBu', s=10)
 
     # カラーバー
     cbar = plt.colorbar(sc, ax=ax, ticks=np.arange(classes.min(), classes.max()+1))
