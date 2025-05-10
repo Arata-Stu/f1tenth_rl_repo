@@ -66,3 +66,57 @@ class Gaussian1dConvPolicy(nn.Module):
         action = torch.tanh(z)
         log_prob = normal.log_prob(z) - torch.log(1 - action.pow(2) + 1e-6)
         return action, log_prob.sum(dim=1, keepdim=True)
+
+
+class DeterministicPolicy(nn.Module):
+    """
+    TD3用のDeterministic Policy Network
+    状態を受け取り、直接アクションを推定する。
+    """
+    def __init__(self, state_dim, action_dim, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim),
+            nn.Tanh()
+        )
+
+    def forward(self, state):
+        """
+        入力:
+            state: [batch_size, state_dim]
+        出力:
+            action: [-1, 1] の範囲に正規化されたアクション
+        """
+        return self.net(state)
+
+
+class Deterministic1dConvPolicy(nn.Module):
+    """
+    TD3用のConvベースのDeterministic Policy Network
+    LiDARの入力をTinyLidarBackboneで特徴抽出し、アクションを推定する。
+    """
+    def __init__(self, state_dim, action_dim, hidden_dim):
+        super().__init__()
+        self.lidar_backbone = TinyLidarBackbone(input_dim=state_dim)
+        self.net = nn.Sequential(
+            nn.Linear(self.lidar_backbone.out_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim),
+            nn.Tanh()
+        )
+
+    def forward(self, state):
+        """
+        入力:
+            state: [batch_size, state_dim]
+        出力:
+            action: [-1, 1] の範囲に正規化されたアクション
+        """
+        features = self.lidar_backbone(state)
+        return self.net(features)

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.models.model import get_actor, get_critic
+from src.models.model import get_stochastic_actor, get_critic
 
 
 class SAC:
@@ -16,7 +16,7 @@ class SAC:
                  device="cpu"):
         self.device = device
         # Actor, Critic
-        self.actor = get_actor(actor_cfg=actor_cfg).to(device)
+        self.actor = get_stochastic_actor(actor_cfg=actor_cfg).to(device)
         self.critic = get_critic(critic_cfg=critic_cfg).to(device)
 
         # Optimizers
