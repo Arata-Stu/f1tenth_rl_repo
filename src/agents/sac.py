@@ -2,17 +2,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.models.actor import GaussianPolicy, Gaussian1dConvPolicy
-from src.models.critic import DoubleCritic, Double1dConvCritic
+from src.models.model import get_actor, get_critic
 
 
 class SAC:
     def __init__(self,
-                 state_dim,
-                 action_dim,
-                 hidden_dim=256,
-                 actor_lr=3e-4,
-                 critic_lr=3e-4,
+                 actor_cfg,
+                 critic_cfg,
                  alpha_lr=3e-4,
                  gamma=0.99,
                  tau=0.005,
@@ -20,16 +16,18 @@ class SAC:
                  device="cpu"):
         self.device = device
         # Actor, Critic
-        self.actor = Gaussian1dConvPolicy(state_dim, action_dim, hidden_dim).to(device)
-        self.critic = Double1dConvCritic(state_dim, action_dim, hidden_dim, tau).to(device)
+        self.actor = get_actor(actor_cfg=actor_cfg).to(device)
+        self.critic = get_critic(critic_cfg=critic_cfg).to(device)
 
         # Optimizers
+        actor_lr = actor_cfg.lr
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
+        critic_lr = critic_cfg.lr
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr)
 
         # α (温度パラメータ)
         if target_entropy is None:
-            target_entropy = -action_dim
+            target_entropy = -actor_cfg.action_dim
         self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
         self.alpha_optimizer = optim.Adam([self.log_alpha], lr=alpha_lr)
         self.target_entropy = target_entropy
