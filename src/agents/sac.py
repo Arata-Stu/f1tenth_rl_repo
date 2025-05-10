@@ -20,8 +20,8 @@ class SAC:
                  device="cpu"):
         self.device = device
         # Actor, Critic
-        self.actor = GaussianPolicy(state_dim, action_dim, hidden_dim).to(device)
-        self.critic = DoubleCritic(state_dim, action_dim, hidden_dim, tau, device)
+        self.actor = Gaussian1dConvPolicy(state_dim, action_dim, hidden_dim).to(device)
+        self.critic = Double1dConvCritic(state_dim, action_dim, hidden_dim, tau).to(device)
 
         # Optimizers
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
