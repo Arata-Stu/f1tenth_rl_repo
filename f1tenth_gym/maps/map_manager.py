@@ -80,12 +80,12 @@ class MapManager:
         curvature_smooth = gaussian_filter1d(curvature, sigma=self.smooth_sigma)
 
         # カーブクラス分け
-        bins = [0.01, 0.04, 0.1]
+        bins = [0.01, 0.02, 0.2]
         curve_classes = np.digitize(curvature_smooth, bins=bins)
         self.curve_classes = curve_classes
 
         # クラスごとのベース速度
-        curve_base_speed = [self.speed, 0.8*self.speed, 0.6*self.speed, 0.4*self.speed]
+        curve_base_speed = [self.speed, 0.8*self.speed, 0.7*self.speed, 0.5*self.speed]
 
         # 微調整係数を曲率に応じて計算（正規化: 大きい曲率 → 小さい係数）
         max_curv = np.max(curvature_smooth)
