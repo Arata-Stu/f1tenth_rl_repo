@@ -61,7 +61,7 @@ class F110Wrapper(gym.Wrapper):
             truncated = True
             
         # 1 lap 終了
-        if obs['lap_counts'][0] == 2:
+        if obs['lap_counts'][0] == 1:
             terminated = True
 
         ## 報酬
