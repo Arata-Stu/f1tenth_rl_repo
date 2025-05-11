@@ -8,7 +8,7 @@ class DoubleCritic(nn.Module):
     """
     二重Criticネットワークとターゲットの管理
     """
-    def __init__(self, state_dim, action_dim, hidden_dim, tau, device):
+    def __init__(self, state_dim, action_dim, hidden_dim, device):
         super().__init__()
         self.device = device
         # Q1, Q2 ネットワーク
@@ -20,12 +20,11 @@ class DoubleCritic(nn.Module):
                 nn.ReLU(),
                 nn.Linear(hidden_dim, 1)
             )
-        self.critic1 = make_net().to(device)
-        self.critic2 = make_net().to(device)
+        self.critic1 = make_net()
+        self.critic2 = make_net()
         # ターゲットネットワーク
         self.target1 = copy.deepcopy(self.critic1)
         self.target2 = copy.deepcopy(self.critic2)
-        self.tau = tau
 
     def forward(self, state, action):
         x = torch.cat([state, action], dim=1)
@@ -41,7 +40,7 @@ class DoubleCritic(nn.Module):
 
 
 class Double1dConvCritic(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim, tau):
+    def __init__(self, state_dim, action_dim, hidden_dim):
         super().__init__()
         
         self.lidar_backbone = TinyLidarBackbone(input_dim=state_dim)
@@ -57,7 +56,6 @@ class Double1dConvCritic(nn.Module):
         self.critic2 = make_net()
         self.target1 = copy.deepcopy(self.critic1)
         self.target2 = copy.deepcopy(self.critic2)
-        self.tau = tau
 
     def forward(self, state, action):
         features = self.lidar_backbone(state)

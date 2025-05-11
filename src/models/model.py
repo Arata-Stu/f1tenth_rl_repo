@@ -43,12 +43,10 @@ def get_critic(critic_cfg: DictConfig):
     if critic_name == "1dconv":
         return Double1dConvCritic(state_dim=critic_cfg.state_dim,
                                   action_dim=critic_cfg.action_dim,
-                                  hidden_dim=critic_cfg.hidden_dim,
-                                  tau=critic_cfg.tau)
+                                  hidden_dim=critic_cfg.hidden_dim,)
     elif critic_name == "mlp":
         return DoubleCritic(state_dim=critic_cfg.state_dim,
                             action_dim=critic_cfg.action_dim,
-                            hidden_dim=critic_cfg.hidden_dim,
-                            tau=critic_cfg.tau)
+                            hidden_dim=critic_cfg.hidden_dim,)
     else:
         raise ValueError(f"Unknown critic name: {critic_name}")
