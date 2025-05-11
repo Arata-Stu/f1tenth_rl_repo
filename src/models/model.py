@@ -19,7 +19,7 @@ def get_stochastic_actor(actor_cfg: DictConfig):
     else:
         raise ValueError(f"Unknown actor name: {actor_name}")
     
-def get_seterministic_actor(actor_cfg: DictConfig):
+def get_deterministic_actor(actor_cfg: DictConfig):
     """
     Actorの取得
     """
