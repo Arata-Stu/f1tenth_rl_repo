@@ -51,8 +51,8 @@ def main(cfg: DictConfig):
         target_size=cfg.dowansample_beam
     )
 
-    log_dir = os.path.join(cfg.log_dir, cfg.run_id, cfg.agent.name, cfg.reward.name)
-    model_dir = os.path.join(cfg.ckpt_dir, cfg.run_id, cfg.agent.name, cfg.reward.name)
+    log_dir = os.path.join(cfg.log_dir, cfg.agent.name, cfg.reward.name, cfg.run_id)
+    model_dir = os.path.join(cfg.ckpt_dir, cfg.agent.name, cfg.reward.name, cfg.run_id)
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(model_dir, exist_ok=True)
 
