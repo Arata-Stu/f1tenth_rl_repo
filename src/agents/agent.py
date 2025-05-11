@@ -2,6 +2,7 @@ from omegaconf import DictConfig
 
 from src.agents.sac import SAC
 from src.agents.td3 import TD3
+from src.agents.ppo import PPO
 def get_agent(agent_cfg: DictConfig, device: str):
     """
     エージェントの初期化
@@ -26,6 +27,15 @@ def get_agent(agent_cfg: DictConfig, device: str):
             policy_noise=agent_cfg.policy_noise,
             noise_clip=agent_cfg.noise_clip,
             policy_delay=agent_cfg.policy_delay,
+            device=device
+        )
+    elif agent_name == "ppo":
+        return PPO(
+            actor_cfg=agent_cfg.actor,
+            critic_cfg=agent_cfg.critic,
+            gamma=agent_cfg.gamma,
+            epsilon=agent_cfg.epsilon,
+            update_epochs=agent_cfg.update_epochs,
             device=device
         )
     else:

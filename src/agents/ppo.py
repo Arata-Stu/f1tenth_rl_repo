@@ -9,8 +9,6 @@ class PPO:
     def __init__(self,
                  actor_cfg,
                  critic_cfg,
-                 actor_lr=3e-4,
-                 critic_lr=3e-4,
                  gamma=0.99,
                  tau=0.005,
                  epsilon=0.2,
@@ -23,8 +21,8 @@ class PPO:
         self.critic = get_ppo_critic(critic_cfg=critic_cfg).to(device)
 
         # Optimizers
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_cfg.lr)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), critic_cfg.lr)
 
         # ハイパーパラメータ
         self.gamma = gamma
