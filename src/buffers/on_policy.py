@@ -36,7 +36,7 @@ class OnPolicyBuffer:
         self.rewards = np.zeros((self.buffer_size, 1), dtype=np.float32)
         self.next_states = np.zeros((self.buffer_size, *self.state_shape), dtype=np.float32)
         self.dones = np.zeros((self.buffer_size, 1), dtype=np.float32)
-        self.log_probs = np.zeros((self.buffer_size, 1), dtype=np.float32)
+        self.log_probs = np.zeros((self.buffer_size, 2), dtype=np.float32)
 
     @staticmethod
     def _to_numpy(x) -> np.ndarray:
@@ -71,8 +71,7 @@ class OnPolicyBuffer:
         バッファから全てのデータを取得し、Tensor で返す。
         バッファはリセットされる。
         """
-        assert self.full, "バッファが満たされていません。すべてのステップが収集されていません。"
-
+        
         data = (
             torch.tensor(self.states, dtype=torch.float32).to(self.device),
             torch.tensor(self.actions, dtype=torch.float32).to(self.device),

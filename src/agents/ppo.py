@@ -96,6 +96,15 @@ class PPO:
             # 新しいポリシーでの log_prob を取得
             _, log_prob = self.actor(state)
             ratio = (log_prob - old_log_prob).exp()
+            
+            # Advantageの次元を調整する (1000,) → (1000, 2)
+            if advantage.dim() == 1:
+                # (1000,) → (1000, 1) に変形
+                advantage = advantage.unsqueeze(1)
+
+            # アクション次元に展開 (1000, 1) → (1000, 2)
+            if advantage.size(1) != action.size(1):
+                advantage = advantage.expand(-1, action.size(1))
             surr1 = ratio * advantage
             surr2 = torch.clamp(ratio, 1.0 - self.epsilon, 1.0 + self.epsilon) * advantage
             loss = -torch.min(surr1, surr2).mean()

@@ -13,8 +13,7 @@ dowansample_beam: 1080
 ## 学習設定
 num_episodes: 10000
 num_steps: 10000
-warmup_steps: 10000
-batch_size: 1000
+batch_size: 256
 random_map: False ## True: ランダムマップ False: 固定マップ
 
 ## log 設定
@@ -29,4 +28,4 @@ render_mode: "human" ## human or human_fast
 
 hydra:
   run:
-    dir: ./outputs/train/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./outputs/train_ppo/${now:%Y-%m-%d}/${now:%H-%M-%S}

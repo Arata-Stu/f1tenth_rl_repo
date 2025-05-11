@@ -58,7 +58,6 @@ def main(cfg: DictConfig):
 
     writer = SummaryWriter(log_dir=log_dir)
     best_reward = -float("inf")  # 最高報酬の初期値
-    warmup_steps = cfg.warmup_steps
     global_step = 0  # 全エピソードを通じたステップ数カウンタ
 
     # --- 学習ループ ---
@@ -111,11 +110,11 @@ def main(cfg: DictConfig):
             if done:
                 break
 
-        # --- エピソード終了処理 ---
+        
         loss_dict = agent.update(buffer, cfg.batch_size)
+        buffer.reset()  # 学習後にバッファをクリア
         for key, value in loss_dict.items():
             writer.add_scalar(f"loss/{key}", value, global_step=episode)
-
         # エピソード終了後のログ
         writer.add_scalar("reward/total_reward", total_reward, global_step=episode)
         print(f"Episode {episode}: Total Reward = {total_reward:.2f}")
