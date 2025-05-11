@@ -8,9 +8,9 @@ class OnPolicyBuffer:
     エピソードごとに収集し、学習後にリセットされる。
     """
     def __init__(self,
+                 buffer_size: int,
                  state_shape: Union[int, Tuple[int, ...]],
                  action_dim: int,
-                 buffer_size: int,
                  device: str = "cpu"):
         """
         Args:

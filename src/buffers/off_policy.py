@@ -9,18 +9,18 @@ class ReplayBuffer:
     sample でまとめて Torch Tensor にして返却します。
     """
     def __init__(self,
-                 capacity: int,
+                 buffer_size: int,
                  state_shape: Union[int, Tuple[int, ...]],
                  action_dim: int = 2,
                  device: str = "cpu"):
         """
         Args:
-            capacity (int): バッファの最大サイズ
+            buffer_size (int): バッファの最大サイズ
             state_shape (int or tuple): 状態ベクトルの形状 (例: 1080 または (1080,))
             action_dim (int): 行動ベクトルの次元
             device (str): サンプリング時に返す Tensor のデバイス
         """
-        self.capacity = capacity
+        self.buffer_size = buffer_size
         self.device = device
 
         # state_shape が int ならタプル化
@@ -39,11 +39,11 @@ class ReplayBuffer:
         self.full = False
         # storage にすべてまとめる
         self.storage = {
-            "states":      np.zeros((self.capacity, *self.state_shape), dtype=np.float32),
-            "actions":     np.zeros((self.capacity, self.action_dim),    dtype=np.float32),
-            "rewards":     np.zeros((self.capacity, 1),                  dtype=np.float32),
-            "next_states": np.zeros((self.capacity, *self.state_shape),  dtype=np.float32),
-            "dones":       np.zeros((self.capacity, 1),                  dtype=np.float32),
+            "states":      np.zeros((self.buffer_size, *self.state_shape), dtype=np.float32),
+            "actions":     np.zeros((self.buffer_size, self.action_dim),    dtype=np.float32),
+            "rewards":     np.zeros((self.buffer_size, 1),                  dtype=np.float32),
+            "next_states": np.zeros((self.buffer_size, *self.state_shape),  dtype=np.float32),
+            "dones":       np.zeros((self.buffer_size, 1),                  dtype=np.float32),
         }
 
     @staticmethod
@@ -69,7 +69,7 @@ class ReplayBuffer:
         self.storage["dones"][idx, 0]    = float(self._to_numpy(done))
 
         # ポインタ更新
-        self.pos = (self.pos + 1) % self.capacity
+        self.pos = (self.pos + 1) % self.buffer_size
         if self.pos == 0:
             self.full = True
 
@@ -78,7 +78,7 @@ class ReplayBuffer:
         ミニバッチをランダムサンプリングし，Tensor で返却。
         returns: states, actions, rewards, next_states, dones
         """
-        max_i = self.capacity if self.full else self.pos
+        max_i = self.buffer_size if self.full else self.pos
         idxs = np.random.choice(max_i, size=batch_size, replace=False)
 
         # 各配列を Torch Tensor に変換＆デバイス転送
@@ -95,4 +95,4 @@ class ReplayBuffer:
         )
 
     def __len__(self):
-        return self.capacity if self.full else self.pos
+        return self.buffer_size if self.full else self.pos

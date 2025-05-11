@@ -14,7 +14,7 @@ from src.agents.agent import get_agent
 from src.planner.purePursuit import PurePursuitPlanner
 from src.utils.helper import ScanBuffer, convert_scan, convert_action
 
-@hydra.main(config_path="config", config_name="train", version_base="1.2")
+@hydra.main(config_path="config", config_name="train_ppo", version_base="1.2")
 def main(cfg: DictConfig):
     OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
 
@@ -100,16 +100,9 @@ def main(cfg: DictConfig):
             r = reward_manager.get_reward(obs=next_obs, pre_obs=obs, action=actions[0])
             total_reward += r
             next_state = scan_buffer.get_concatenated_numpy()
-    
-            buffer.add(state, action, r, next_state, done)
 
-            # 学習ステップ
-            ## バッファのサイズが十分であれば学習を行う
-            if global_step >= warmup_steps and len(buffer) > cfg.batch_size:
-                loss_dict = agent.update(buffer, cfg.batch_size)
-                for key, value in loss_dict.items():
-                    writer.add_scalar(f"loss/{key}", value, global_step=episode)
-
+            buffer.add(state, action, r, next_state, done, log_prob=log_prob)
+            
             obs = next_obs
 
             if cfg.render:
@@ -117,6 +110,11 @@ def main(cfg: DictConfig):
                 
             if done:
                 break
+
+        # --- エピソード終了処理 ---
+        loss_dict = agent.update(buffer, cfg.batch_size)
+        for key, value in loss_dict.items():
+            writer.add_scalar(f"loss/{key}", value, global_step=episode)
 
         # エピソード終了後のログ
         writer.add_scalar("reward/total_reward", total_reward, global_step=episode)

@@ -1,6 +1,7 @@
 from omegaconf import DictConfig
 
 from .off_policy import ReplayBuffer
+from .on_policy import OnPolicyBuffer
 
 def get_buffer(buffer_cfg: DictConfig, device: str = "cpu"):
     
@@ -8,10 +9,17 @@ def get_buffer(buffer_cfg: DictConfig, device: str = "cpu"):
 
     if name == "off_policy":
         buffer = ReplayBuffer(
-            capacity=buffer_cfg.capacity,
+            buffer_size=buffer_cfg.buffer_size,
             state_shape=buffer_cfg.state_shape,
             action_dim=buffer_cfg.action_dim,
             device=device
+        )
+    elif name == "on_policy":
+        buffer = OnPolicyBuffer(
+            buffer_size=buffer_cfg.buffer_size,
+            state_shape=buffer_cfg.state_shape,
+            action_dim=buffer_cfg.action_dim,
+            device=device,
         )
     else:
         raise ValueError(f"Unknown buffer name: {name}")

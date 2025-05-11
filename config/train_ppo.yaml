@@ -1,0 +1,32 @@
+defaults:
+  - vehicle: default
+  - envs: default 
+  - planner: pure_pursuit
+  - reward: ???
+  - agent: ppo
+  - buffer: on_policy
+
+## 2d scan buffer
+scan_n: 2
+dowansample_beam: 60
+
+## 学習設定
+num_episodes: 10000
+num_steps: 10000
+warmup_steps: 10000
+batch_size: 1000
+random_map: False ## True: ランダムマップ False: 固定マップ
+
+## log 設定
+run_id: ${now:%Y-%m-%d}/${now:%H-%M-%S}
+log_dir: ./logs/
+ckpt_dir: ./ckpts/
+
+## 可視化設定
+render: True
+render_mode: "human" ## human or human_fast
+
+
+hydra:
+  run:
+    dir: ./outputs/train/${now:%Y-%m-%d}/${now:%H-%M-%S}
