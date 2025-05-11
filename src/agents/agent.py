@@ -21,8 +21,6 @@ def get_agent(agent_cfg: DictConfig, device: str):
         return TD3(
             actor_cfg=agent_cfg.actor,
             critic_cfg=agent_cfg.critic,
-            actor_lr=agent_cfg.actor_lr,
-            critic_lr=agent_cfg.critic_lr,
             gamma=agent_cfg.gamma,
             tau=agent_cfg.tau,
             policy_noise=agent_cfg.policy_noise,

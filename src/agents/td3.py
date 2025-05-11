@@ -11,8 +11,6 @@ class TD3:
     def __init__(self,
                  actor_cfg,
                  critic_cfg,
-                 actor_lr=3e-4,
-                 critic_lr=3e-4,
                  gamma=0.99,
                  tau=0.005,
                  policy_noise=0.2,
@@ -36,10 +34,10 @@ class TD3:
         self.critic2_target.load_state_dict(self.critic2.state_dict())
 
         # Optimizer の設定
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_cfg.lr)
         self.critic_optimizer = optim.Adam(
             list(self.critic1.parameters()) + list(self.critic2.parameters()),
-            lr=critic_lr
+            lr=critic_cfg.lr
         )
 
         # ハイパーパラメータ
@@ -50,12 +48,22 @@ class TD3:
         self.policy_delay = policy_delay
         self.update_counter = 0
 
-    def select_action(self, state, noise=0.1):
-        """アクションの選択"""
+    def select_action(self, state, evaluate=False, noise=0.1):
+        """
+        アクションの選択
+        :param state: 現在の状態
+        :param evaluate: 評価モードかどうか
+        :param noise: 探索時のノイズ
+        :return: 選択されたアクション
+        """
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         action = self.actor(state).cpu().data.numpy().flatten()
-        if noise != 0:
+        
+        if not evaluate and noise != 0:
+            # 学習時はノイズを付与して探索を促進
             action = action + np.random.normal(0, noise, size=action.shape)
+        
+        # アクションのクリッピング
         return np.clip(action, -1, 1)
 
     def update(self, replay_buffer, batch_size=256):
