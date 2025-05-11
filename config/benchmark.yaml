@@ -7,8 +7,8 @@ defaults:
 ckpt: ???
 
 ## 2d scan buffer
-scan_n: 2
-dowansample_beam: 60
+scan_n: 1
+downsample_beam: 1080
 
 num_steps: 100000
 
