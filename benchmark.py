@@ -48,7 +48,7 @@ def main(cfg: DictConfig):
     scan_buffer = ScanBuffer(
         frame_size=cfg.envs.num_beams,
         num_scan=cfg.scan_n,
-        target_size=cfg.dowansample_beam
+        target_size=cfg.downsample_beam
     )
 
 
