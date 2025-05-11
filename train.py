@@ -81,7 +81,9 @@ def main(cfg: DictConfig):
             for i in range(cfg.envs.num_agents):
                 if i == 0:
                     state = scan_buffer.get_concatenated_tensor()
-                    nn_action = agent.select_action(state, evaluate=False)
+                    nn_action_dict = agent.select_action(state, evaluate=False)
+                    nn_action = nn_action_dict["action"]
+                    log_prob = nn_action_dict["log_prob"]
                     action = convert_action(nn_action, steer_range=cfg.envs.steer_range, speed_range=cfg.envs.speed_range)
                 else:
                     action = planner.plan(obs, id=i)
@@ -98,7 +100,12 @@ def main(cfg: DictConfig):
             r = reward_manager.get_reward(obs=next_obs, pre_obs=obs, action=actions[0])
             total_reward += r
             next_state = scan_buffer.get_concatenated_numpy()
-            buffer.add(state, action, r, next_state, done)
+
+            if log_prob is not None:
+                ## PPO の場合は log_prob をバッファに追加
+                buffer.add(state, action, r, next_state, done, log_prob=log_prob)
+            else:
+                buffer.add(state, action, r, next_state, done)
 
             # 学習ステップ
             ## バッファのサイズが十分であれば学習を行う

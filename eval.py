@@ -65,7 +65,8 @@ def main(cfg: DictConfig):
         for i in range(cfg.envs.num_agents):
             if i == 0:
                 state = scan_buffer.get_concatenated_tensor()
-                nn_action = agent.select_action(state, evaluate=True)
+                nn_action_dict = agent.select_action(state, evaluate=True)
+                nn_action = nn_action_dict['action']
                 action = convert_action(nn_action, steer_range=cfg.envs.steer_range, speed_range=cfg.envs.speed_range)
             else:
                 action = planner.plan(obs, id=i)

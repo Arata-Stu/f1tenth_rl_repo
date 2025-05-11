@@ -40,9 +40,13 @@ class SAC:
             if evaluate:
                 mean, _ = self.actor(state)
                 action = torch.tanh(mean)
+                log_prob = None
             else:
-                action, _ = self.actor.sample(state)
-        return action.cpu().numpy()[0]
+                action, log_prob = self.actor.sample(state)
+        return {
+            "action": action.cpu().numpy()[0],
+            "log_prob": None
+        }
 
     def update(self, replay_buffer, batch_size=256):
         """ネットワークの更新処理"""

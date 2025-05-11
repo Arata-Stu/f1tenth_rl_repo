@@ -54,7 +54,12 @@ class TD3:
         if not evaluate and noise != 0:
             action = action + np.random.normal(0, noise, size=action.shape)
         
-        return np.clip(action, -1, 1)
+        action = np.clip(action, -1, 1)
+
+        return {
+            "action": action,
+            "log_prob": None,  # TD3 では log_prob は使用しない
+        }
 
     def update(self, replay_buffer, batch_size=256):
         """
