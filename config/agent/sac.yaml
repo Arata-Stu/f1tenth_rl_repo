@@ -14,5 +14,6 @@ critic:
   lr: 0.0003
 
 alpha_lr: 0.0003
-gamma: 0.99
+target_entropy: null
 tau: 0.005
+gamma: 0.99

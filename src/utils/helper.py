@@ -2,6 +2,19 @@ import numpy as np
 from collections import deque
 import torch
 
+def soft_update(source, target, tau=0.005):
+    """
+    Soft Update for target network parameters
+    Args:
+        source (nn.Module): メインのネットワーク
+        target (nn.Module): ターゲットネットワーク
+        tau (float): ソフトアップデートの係数
+    """
+    for target_param, param in zip(target.parameters(), source.parameters()):
+        target_param.data.copy_(tau * param.data + (1.0 - tau) * target_param.data)
+
+
+
 def convert_action(action, steer_range: float=0.4, speed_range: float=10.0):
     
     steer = action[0] * steer_range

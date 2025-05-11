@@ -4,6 +4,7 @@ import torch.optim as optim
 import numpy as np
 
 from src.models.model import get_seterministic_actor, get_critic
+from src.utils.helper import soft_update
 
 
 class TD3:
@@ -20,7 +21,8 @@ class TD3:
                  device="cpu"):
         
         self.device = device
-        # Actor, Criticの初期化
+        
+        # Actor, Critic の初期化
         self.actor = get_seterministic_actor(actor_cfg=actor_cfg).to(device)
         self.actor_target = get_seterministic_actor(actor_cfg=actor_cfg).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -33,7 +35,7 @@ class TD3:
         self.critic1_target.load_state_dict(self.critic1.state_dict())
         self.critic2_target.load_state_dict(self.critic2.state_dict())
 
-        # Optimizerの設定
+        # Optimizer の設定
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
         self.critic_optimizer = optim.Adam(
             list(self.critic1.parameters()) + list(self.critic2.parameters()),
@@ -49,6 +51,7 @@ class TD3:
         self.update_counter = 0
 
     def select_action(self, state, noise=0.1):
+        """アクションの選択"""
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         action = self.actor(state).cpu().data.numpy().flatten()
         if noise != 0:
@@ -56,48 +59,59 @@ class TD3:
         return np.clip(action, -1, 1)
 
     def update(self, replay_buffer, batch_size=256):
+        """ネットワークの更新処理"""
         state, action, reward, next_state, done = replay_buffer.sample(batch_size)
 
+        # Critic の更新
         self._update_critic(state, action, reward, next_state, done)
         
+        # ポリシーの遅延更新
         if self.update_counter % self.policy_delay == 0:
             self._update_actor(state)
-            self._soft_update(self.actor_target, self.actor)
-            self._soft_update(self.critic1_target, self.critic1)
-            self._soft_update(self.critic2_target, self.critic2)
+            
+            # Soft Update の実行
+            soft_update(self.actor, self.actor_target, self.tau)
+            soft_update(self.critic1, self.critic1_target, self.tau)
+            soft_update(self.critic2, self.critic2_target, self.tau)
         
+        # カウンターの更新
         self.update_counter += 1
 
     def _update_critic(self, state, action, reward, next_state, done):
+        """Critic の更新処理"""
         with torch.no_grad():
+            # ポリシーノイズの追加
             noise = (torch.randn_like(action) * self.policy_noise).clamp(-self.noise_clip, self.noise_clip)
             next_action = (self.actor_target(next_state) + noise).clamp(-1, 1)
             
+            # ターゲット Q 値の計算
             target_q1 = self.critic1_target(next_state, next_action)
             target_q2 = self.critic2_target(next_state, next_action)
             target_q = reward + (1 - done) * self.gamma * torch.min(target_q1, target_q2)
 
+        # 現在の Q 値を取得
         current_q1 = self.critic1(state, action)
         current_q2 = self.critic2(state, action)
 
+        # 損失計算
         critic_loss = nn.MSELoss()(current_q1, target_q) + nn.MSELoss()(current_q2, target_q)
 
+        # オプティマイザの更新
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
 
     def _update_actor(self, state):
+        """Actor の更新処理"""
         actor_loss = -self.critic1(state, self.actor(state)).mean()
 
+        # オプティマイザの更新
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
 
-    def _soft_update(self, target, source):
-        for target_param, param in zip(target.parameters(), source.parameters()):
-            target_param.data.copy_(self.tau * param.data + (1.0 - self.tau) * target_param.data)
-
     def save(self, path):
+        """モデルの保存"""
         torch.save({
             'actor': self.actor.state_dict(),
             'critic1': self.critic1.state_dict(),
@@ -110,6 +124,7 @@ class TD3:
         }, path)
 
     def load(self, path):
+        """モデルのロード"""
         checkpoint = torch.load(path, map_location=self.device)
         self.actor.load_state_dict(checkpoint['actor'])
         self.critic1.load_state_dict(checkpoint['critic1'])

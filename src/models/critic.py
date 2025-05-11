@@ -39,12 +39,6 @@ class DoubleCritic(nn.Module):
         tq2 = self.target2(x)
         return tq1, tq2
 
-    def soft_update(self):
-        for p, tp in zip(self.critic1.parameters(), self.target1.parameters()):
-            tp.data.copy_(self.tau * p.data + (1 - self.tau) * tp.data)
-        for p, tp in zip(self.critic2.parameters(), self.target2.parameters()):
-            tp.data.copy_(self.tau * p.data + (1 - self.tau) * tp.data)
-
 
 class Double1dConvCritic(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_dim, tau):
@@ -79,9 +73,4 @@ class Double1dConvCritic(nn.Module):
         tq2 = self.target2(x)
         return tq1, tq2
 
-    def soft_update(self):
-        for p, tp in zip(self.critic1.parameters(), self.target1.parameters()):
-            tp.data.copy_(self.tau * p.data + (1 - self.tau) * tp.data)
-        for p, tp in zip(self.critic2.parameters(), self.target2.parameters()):
-            tp.data.copy_(self.tau * p.data + (1 - self.tau) * tp.data)
-
+    
