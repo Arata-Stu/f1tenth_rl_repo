@@ -72,3 +72,52 @@ class Double1dConvCritic(nn.Module):
         return tq1, tq2
 
     
+class ValueCritic(nn.Module):
+    """
+    PPO 用のシンプルな Value Critic ネットワーク
+    """
+    def __init__(self, state_dim, hidden_dim=64):
+        super(ValueCritic, self).__init__()
+
+        # ネットワーク定義
+        self.value_net = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        )
+
+    def forward(self, state):
+        """
+        状態を入力にして、価値 V(s) を返す
+        """
+        value = self.value_net(state)
+        return value
+    
+
+class ConvValueCritic(nn.Module):
+    """
+    PPO 用のシンプルな Value Critic with TinyLidarBackbone
+    """
+    def __init__(self, state_dim, hidden_dim=64):
+        super().__init__()
+        
+        self.lidar_backbone = TinyLidarBackbone(input_dim=state_dim)
+
+        # ネットワーク定義
+        self.value_net = nn.Sequential(
+            nn.Linear(self.lidar_backbone.out_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        )
+
+    def forward(self, state):
+        """
+        状態を入力にして、価値 V(s) を返す
+        """
+        features = self.lidar_backbone(state)
+        value = self.value_net(features)
+        return value
