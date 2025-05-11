@@ -7,8 +7,8 @@ defaults:
   - buffer: on_policy
 
 ## 2d scan buffer
-scan_n: 2
-dowansample_beam: 60
+scan_n: 1
+dowansample_beam: 1080
 
 ## 学習設定
 num_episodes: 10000
